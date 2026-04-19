@@ -1,3 +1,5 @@
+from .models import Order
+
 def get_order(order_id):
     try:
         order = Order.objects.get(order_id=order_id)
