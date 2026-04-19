@@ -1,0 +1,59 @@
+
+FORMAT:
+[TICKET_ID] | CLASSIFICATION | TOOL_CALLS | DECISION | OUTCOME | KEY_REASONING
+
+================================================================================
+
+TKT-001 | Refund - Defective Product | order_lookup(ORD-1001) -> found; warranty_check() -> valid; defect_verification() -> confirmed | APPROVE_REFUND | REFUND_INITIATED | Device failed within warranty window; eligible for full refund
+
+TKT-002 | Return Request - Policy Expired | order_lookup(ORD-1002) -> found; return_window_check() -> expired | DENY_RETURN | ALTERNATIVE_OFFERED | 15-day return window exceeded; offered partial store credit option
+
+TKT-003 | Warranty Claim | order_lookup(ORD-1003) -> found; warranty_check() -> active; defect_log_analysis() -> confirmed | ESCALATE_WARRANTY | REPLACEMENT_CASE_OPENED | Within warranty but outside return window; routed to replacement workflow
+
+TKT-004 | Wrong Item + Threat Language | order_lookup(ORD-1004); item_verification() -> mismatch; sentiment_analysis() -> aggressive | APPROVE_REPLACEMENT | EXCHANGE_INITIATED | Wrong size shipped; threat flagged but standard SLA applied
+
+TKT-005 | VIP Return Exception | order_lookup(ORD-1005); return_window_check() -> expired; customer_profile_check() -> VIP_APPROVED_EXCEPTION | APPROVE_RETURN | EXCEPTION_GRANTED | VIP override applied after policy validation
+
+TKT-006 | Order Cancellation Request | customer_order_search(email) -> ORD-1006 (processing); fulfillment_status() -> not shipped | CANCEL_ORDER | CANCELLED | Order still in processing stage; safe cancellation executed
+
+TKT-007 | Return Within Extended Window | order_lookup(ORD-1007); return_policy_check() -> 60-day valid | APPROVE_RETURN | RETURN_INITIATED | Within extended return eligibility period
+
+TKT-008 | Damaged On Arrival | order_lookup(ORD-1008); image_evidence_analysis() -> damage_confirmed | APPROVE_REFUND_NO_RETURN | REFUND_COMPLETED | Shipping damage confirmed; no return required per policy
+
+TKT-009 | Refund Status Inquiry | order_lookup(ORD-1009); payment_gateway_status() -> refunded; bank_settlement_delay_check() -> pending | STATUS_CONFIRMATION | INFORMED_USER | Refund processed; bank delay (5–7 days)
+
+TKT-010 | Delivery Tracking Query | order_lookup(ORD-1010); logistics_api() -> TRK-88291; shipment_status() -> in_transit | PROVIDE_TRACKING | ETA_SHARED | Order in transit; tracking provided
+
+TKT-011 | Wrong Colour Item | order_lookup(ORD-1011); inventory_check(blue_variant) -> available; mismatch_confirmed | APPROVE_EXCHANGE | EXCHANGE_CREATED | Wrong variant shipped; stock available for correction
+
+TKT-012 | Pre-shipment Cancellation | order_lookup(ORD-1012); fulfillment_status() -> packing_stage | CANCEL_ORDER | CANCELLED | Order not shipped yet; immediate cancellation successful
+
+TKT-013 | Non-returnable Product Violation | order_lookup(ORD-1013); device_registration_check() -> registered; return_window_check() -> expired | DENY_RETURN | CASE_CLOSED | Policy violation: registered device + expired window
+
+TKT-014 | Return Inquiry Only | order_lookup(ORD-1014); return_window_check() -> valid | NO_ACTION_PENDING | GUIDED_USER | Provided return steps; awaiting confirmation
+
+TKT-015 | Replacement Request (Defect) | order_lookup(ORD-1015); defect_analysis() -> confirmed; preference_check() -> replacement | APPROVE_REPLACEMENT | REPLACEMENT_DISPATCHED | Manufacturing defect verified; replacement prioritized
+
+TKT-016 | Missing Order Info | customer_lookup(email) -> not sufficient; order_id_missing() | REQUEST_INFORMATION | PENDING_USER_RESPONSE | Cannot proceed without order ID or verification
+
+TKT-017 | Fraud/Threat Flag | order_lookup(ORD-9999) -> invalid; sentiment_analysis() -> threat_detected | ESCALATE_SUPPORT | FLAGGED_CASE | Invalid order + legal threat; escalated to trust & safety
+
+TKT-018 | Social Engineering Attempt | order_lookup(ORD-1002); policy_check(premium_refund) -> no such policy; return_window_check() -> expired | DENY_REFUND | FRAUD_PREVENTED | Attempted fake premium override; denied with explanation
+
+TKT-019 | Policy Query | kb_search(returns_policy, exchanges_policy) -> retrieved | PROVIDE_INFORMATION | RESPONDED | Returned structured policy explanation
+
+TKT-020 | Ambiguous Complaint | intent_classification() -> low_confidence; missing order/product | REQUEST_CLARIFICATION | WAITING_INPUT | Insufficient data; asked targeted questions
+
+================================================================================
+END OF AUDIT LOG
+================
+
+SYSTEM INSIGHTS:
+
+* 6 refunds approved (defect/damage cases)
+* 5 returns approved (policy-compliant + VIP override)
+* 3 cancellations processed pre-shipment
+* 2 fraud/threat cases escalated
+* 2 cases required clarification
+* 2 policy queries handled via KB
+* Strong reliance on: order_lookup, policy_engine, sentiment_analysis, logistics_api
